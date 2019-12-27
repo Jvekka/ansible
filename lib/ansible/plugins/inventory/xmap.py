@@ -39,6 +39,17 @@ DOCUMENTATION = '''
             description: use IPv6 type addresses
             type: boolean
             default: True
+        custom:
+            description: list of custom set of ports
+            type: list
+        privileged:
+            description: use --privileged to allow scan without sudo
+            type: boolean
+            default: True
+        OS:
+            description: Get OS information | Not output created yet
+            type: boolean
+            default: True
     notes:
         - At least one of ipv4 or ipv6 is required to be True, both can be True, but they cannot both be False.
         - 'TODO: add OS fingerprinting'
@@ -48,6 +59,8 @@ EXAMPLES = '''
     plugin: xmap
     strict: False
     address: 192.168.0.0/24
+    custom: 22, 3389, 5985, 5986
+    privileged: True
 '''
 
 import os
@@ -112,6 +125,16 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         if self._options['exclude']:
             cmd.append('--exclude')
             cmd.append(','.join(self._options['exclude']))
+
+        if self._options['custom']:
+            cmd.append('-p')
+            cmd.append(','.join(self._options['custom']))
+
+        if self._options['privileged']:
+            cmd.append('--privileged')
+
+        if self._options['OS']:
+            cmd.append('-O')
 
         cmd.append(self._options['address'])
         try:

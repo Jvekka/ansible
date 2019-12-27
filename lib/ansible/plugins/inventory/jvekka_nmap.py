@@ -5,7 +5,7 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 DOCUMENTATION = '''
-    name: xmap
+    name: nmap
     plugin_type: inventory
     version_added: "2.6"
     short_description: Uses nmap to find hosts to target
@@ -45,7 +45,7 @@ DOCUMENTATION = '''
 '''
 EXAMPLES = '''
     # inventory.config file in YAML format
-    plugin: xmap
+    plugin: nmap
     strict: False
     address: 192.168.0.0/24
 '''
@@ -64,7 +64,7 @@ from ansible.module_utils.common.process import get_bin_path
 
 class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
-    NAME = 'xmap'
+    NAME = 'jvekka_nmap'
     find_host = re.compile(r'^Nmap scan report for ([\w,.,-]+) \(([\w,.,:,\[,\]]+)\)')
     find_port = re.compile(r'^(\d+)/(\w+)\s+(\w+)\s+(\w+)')
 
@@ -112,6 +112,10 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         if self._options['exclude']:
             cmd.append('--exclude')
             cmd.append(','.join(self._options['exclude']))
+        
+        if self._options['specific']:
+            cmd.append('-p')
+            cmd.append(','.join(self._options['specific']))
 
         cmd.append(self._options['address'])
         try:
